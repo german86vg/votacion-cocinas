@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Votación de estilos de cocina · Home Vega × OPPEIN</title>
+<style>
+:root{--b:#1F4E79;--bg:#0f1720;--c:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#111;color:#fff;-webkit-tap-highlight-color:transparent}
+.top{position:sticky;top:0;z-index:5;background:#0b1118;padding:8px 14px;display:flex;align-items:center;gap:10px;font-size:13px}
+.bar{flex:1;height:6px;background:#2a3744;border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:#4aa3ff;width:0}
+.wrap{max-width:1500px;margin:auto}
+.pf{max-width:560px;margin:0 auto;padding:28px 20px;background:#fff;color:#222;min-height:100vh}
+.pf h1{color:var(--b);font-size:24px;margin:0 0 6px}.pf p{line-height:1.45}
+label{display:block;margin:14px 0 4px;font-weight:bold;font-size:14px}
+input,select,textarea{width:100%;padding:12px;font-size:16px;border:1px solid #9bb;border-radius:8px}
+.btn{background:var(--b);color:#fff;border:0;padding:14px 22px;font-size:16px;border-radius:10px;cursor:pointer;margin-top:18px;width:100%}
+.btn.sec{background:#e5ecf3;color:var(--b)}
+.stage{position:relative;background:#000;text-align:center}
+.stage img.main{width:100%;max-height:calc(100vh - 250px);object-fit:contain;display:block;margin:auto;cursor:zoom-in}
+.nav{position:absolute;top:40%;background:#0008;color:#fff;border:0;font-size:34px;width:48px;height:72px;cursor:pointer}
+.nav.l{left:0}.nav.r{right:0}
+.thumbs{display:flex;gap:6px;justify-content:center;padding:6px;background:#000}.thumbs img{height:54px;border:2px solid transparent;cursor:pointer;border-radius:4px}.thumbs img.on{border-color:#4aa3ff}
+.info{padding:10px 16px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px}
+.info h2{margin:0;font-size:26px}.info small{color:#9fb3c8;font-size:13px}
+.votes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:6px 12px 20px}
+.v{padding:14px 4px;border-radius:12px;border:2px solid #2d3b4a;background:#18222d;color:#fff;font-size:15px;cursor:pointer;text-align:center}
+.v b{display:block;font-size:24px}.v.on{border-color:#4aa3ff;background:#1F4E79}
+.v.s3.on{background:#b3366b;border-color:#ff7aa8}.v.s0.on{background:#444;border-color:#999}
+.lb{position:fixed;inset:0;background:#000e;z-index:20;display:none;align-items:center;justify-content:center}.lb img{max-width:100%;max-height:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;padding:12px}
+.g{position:relative;cursor:pointer;border:3px solid transparent;border-radius:8px;overflow:hidden;background:#222}.g img{width:100%;display:block}.g span{position:absolute;left:0;right:0;bottom:0;background:#000b;padding:4px 6px;font-size:12px}
+.g.sel{border-color:#ff7aa8}.g em{position:absolute;top:6px;right:6px;background:#ff7aa8;color:#000;font-style:normal;font-weight:bold;border-radius:50%;width:30px;height:30px;line-height:30px;font-size:16px}
+.pad{padding:16px}
+@media(max-width:700px){.info h2{font-size:21px}.nav{height:56px;width:38px}}
+</style></head><body>
+<div id="app"></div><div class="lb" id="lb" onclick="this.style.display='none'"><img id="lbi"></div>
+<script src="catalogo.js"></script><script src="config.js"></script>
+<script>
+const CAT=window.CATALOGO,CFG=window.CONFIG,$=s=>document.querySelector(s);
+const SC={3:['😍','Me encanta'],2:['👍','Me gusta'],1:['😐','Neutral'],0:['👎','No me gusta']};
+let S=JSON.parse(localStorage.getItem('hv_survey')||'null');
+const save=()=>localStorage.setItem('hv_survey',JSON.stringify(S));
+function rng(seed){return()=>{seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296}}
+function mkOrder(){const r=rng(Date.now()%100000+7);const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+ return sh(CAT.filter(x=>x.part=='A').map(x=>x.id)).concat(sh(CAT.filter(x=>x.part=='B').map(x=>x.id)))}
+const get=id=>CAT.find(x=>x.id==id);
+function render(){const a=$('#app');
+ if(!S||S.step=='profile')return profile(a);
+ if(S.step=='cards')return cards(a);
+ if(S.step=='top')return topScreen(a);
+ return done(a)}
+function profile(a){a.innerHTML=`<div class="pf"><h1>Votación de estilos de cocina</h1><p>Home Vega está definiendo los ambientes de cocina de su showroom OPPEIN. Verás <b>${CAT.length} cocinas</b> (una por pantalla, en grande). Marca cuánto te gusta cada una. Toma ~10–15 minutos. No hay respuestas correctas: queremos tu criterio.</p>
+ <label>Nombre</label><input id="n"><label>Tu rol</label><select id="r"><option value="">Selecciona…</option><option>Diseñador/a</option><option>Vendedor/a</option><option>Cliente</option><option>Arquitecto/Constructor</option><option>Otro</option></select>
+ <label>Tienda / ciudad (opcional)</label><input id="t">
+ <label>¿Qué parte quieres votar?</label><select id="m"><option value="all">Todas (${CAT.length} cocinas)</option><option value="A">Solo Parte A: 8 estilos de los decks (≈3 min)</option></select>
+ <button class="btn" onclick="start()">Comenzar</button></div>`}
+function start(){const n=$('#n').value.trim(),r=$('#r').value;if(!n||!r)return alert('Completa nombre y rol');
+ let ord=mkOrder();if($('#m').value=='A')ord=ord.filter(i=>i[0]=='A');
+ S={step:'cards',name:n,role:r,store:$('#t').value,order:ord,i:0,ans:{},top:[],comment:'',start:new Date().toISOString(),img:{}};save();render()}
+function cards(a){const id=S.order[S.i],x=get(id),k=S.img[id]||0,sc=S.ans[id];
+ const pct=Math.round(S.i/S.order.length*100);
+ a.innerHTML=`<div class="top"><span>${S.i+1} / ${S.order.length}</span><div class="bar"><i style="width:${pct}%"></i></div><span>${x.part=='A'?'Parte A':'Parte B'}</span></div>
+ <div class="wrap"><div class="stage"><img class="main" src="img/${x.imgs[k]}" onclick="zoom(this.src)">
+ <button class="nav l" onclick="mv(-1)">‹</button><button class="nav r" onclick="mv(1)">›</button></div>
+ ${x.imgs.length>1?`<div class="thumbs">${x.imgs.map((f,j)=>`<img src="img/${f}" class="${j==k?'on':''}" onclick="S.img['${id}']=${j};render()">`).join('')}</div>`:''}
+ <div class="info"><h2>${x.name}</h2><small>${x.mat}${x.plcc?' · '+x.plcc:''}${x.style?' · '+x.style:''}</small></div>
+ <div class="votes">${[3,2,1,0].map(s=>`<button class="v s${s} ${sc===s?'on':''}" onclick="vote(${s})"><b>${SC[s][0]}</b>${SC[s][1]}</button>`).join('')}</div></div>`;
+ const nx=S.order[S.i+1];if(nx){new Image().src='img/'+get(nx).imgs[0]}}
+function vote(s){S.ans[S.order[S.i]]=s;save();setTimeout(()=>mv(1),180);cards($('#app'))}
+function mv(d){const n=S.i+d;if(n<0)return;if(n>=S.order.length){return finishCards()}S.i=n;save();render();scrollTo(0,0)}
+function finishCards(){const un=S.order.filter(i=>S.ans[i]===undefined);
+ if(un.length&&!confirm(`Te faltan ${un.length} cocinas sin votar. ¿Continuar de todos modos?`)){S.i=S.order.indexOf(un[0]);save();return render()}
+ S.step='top';save();render();scrollTo(0,0)}
+function topScreen(a){let pool=S.order.filter(i=>S.ans[i]===3);if(pool.length<3)pool=S.order.filter(i=>S.ans[i]>=2);
+ a.innerHTML=`<div class="pf" style="max-width:none;background:#111;color:#fff"><h1 style="color:#fff">Tu Top 3</h1><p>Toca tus 3 cocinas favoritas, en orden: la 1ª es la que más te gusta. Toca otra vez para quitar.</p>
+ <div class="grid">${pool.map(i=>{const x=get(i),p=S.top.indexOf(i);return`<div class="g ${p>=0?'sel':''}" onclick="pick('${i}')"><img src="img/${x.imgs[0]}">${p>=0?`<em>${p+1}</em>`:''}<span>${x.name}</span></div>`}).join('')}</div>
+ <label style="color:#fff">¿Algo que quieras comentar? (colores, materiales, lo que NO debería faltar)</label><textarea id="cm" rows="3">${S.comment||''}</textarea>
+ <button class="btn" onclick="send()">Enviar mis votos</button><button class="btn sec" onclick="S.step='cards';S.i=0;save();render()">← Volver a revisar</button></div>`}
+function pick(i){const p=S.top.indexOf(i);if(p>=0)S.top.splice(p,1);else if(S.top.length<3)S.top.push(i);S.comment=$('#cm').value;save();topScreen($('#app'))}
+function payload(){return{name:S.name,role:S.role,store:S.store,answers:S.ans,top3:S.top,comment:$('#cm')?$('#cm').value:S.comment,started_at:S.start}}
+async function send(){const p=payload();let ok=false;
+ if(CFG.SUPABASE_URL){try{const r=await fetch(CFG.SUPABASE_URL+'/rest/v1/responses',{method:'POST',headers:{apikey:CFG.SUPABASE_ANON_KEY,Authorization:'Bearer '+CFG.SUPABASE_ANON_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(p)});ok=r.ok}catch(e){}}
+ S.sent=ok;S.step='done';S.final=p;save();render()}
+function done(a){a.innerHTML=`<div class="pf"><h1>¡Gracias, ${S.name}!</h1>${S.sent?'<p>Tus votos se enviaron correctamente.</p>':`<p>${CFG.SUPABASE_URL?'No hubo conexión. ':''}Descarga tu archivo y envíalo a quien te compartió la encuesta.</p><button class="btn" onclick="dl()">Descargar mis votos</button>`}
+ <button class="btn sec" onclick="localStorage.removeItem('hv_survey');S=null;render()">Nueva respuesta (otra persona)</button></div>`}
+function dl(){const b=new Blob([JSON.stringify(S.final,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='votos_'+S.name.replace(/\W+/g,'_')+'.json';a.click()}
+function zoom(s){$('#lbi').src=s;$('#lb').style.display='flex'}
+document.addEventListener('keydown',e=>{if(S&&S.step=='cards'){if(e.key=='ArrowRight')mv(1);if(e.key=='ArrowLeft')mv(-1);if('0123'.includes(e.key)&&e.key!=='')vote(+e.key)}});
+let tx=0;document.addEventListener('touchstart',e=>tx=e.touches[0].clientX);document.addEventListener('touchend',e=>{if(S&&S.step=='cards'){const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>80)mv(d<0?1:-1)}});
+render();
+</script></body></html>

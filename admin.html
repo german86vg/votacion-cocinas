@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Resultados · Votación cocinas</title>
+<style>body{font-family:Arial;margin:0;padding:16px;background:#f4f6f9;color:#222}h1{color:#1F4E79}table{border-collapse:collapse;width:100%;background:#fff;font-size:13px}th,td{border:1px solid #d5dde6;padding:5px 7px;text-align:center}th{background:#1F4E79;color:#fff;position:sticky;top:0;cursor:pointer}td.l{text-align:left}img{height:54px;border-radius:4px;display:block}button,input{padding:9px 14px;font-size:14px;margin:4px;border-radius:6px;border:1px solid #1F4E79}button{background:#1F4E79;color:#fff;cursor:pointer}.b{height:10px;background:#4aa3ff;display:block;border-radius:3px}</style></head><body>
+<h1>Resultados de la votación</h1>
+<div id="ctl"><input id="pw" type="password" placeholder="Clave de administrador"><button onclick="loadDB()">Cargar de Supabase</button> o archivos JSON: <input type="file" id="fl" multiple accept=".json" onchange="loadFiles(this.files)"> <button onclick="csv('long')">CSV largo (para Excel)</button> <button onclick="csv('sum')">CSV resumen</button></div>
+<p id="st"></p><div id="out"></div>
+<script src="catalogo.js"></script><script src="config.js"></script>
+<script>
+const CAT=window.CATALOGO;let R=[];
+async function loadDB(){const r=await fetch(CONFIG.SUPABASE_URL+'/rest/v1/rpc/get_results',{method:'POST',headers:{apikey:CONFIG.SUPABASE_ANON_KEY,Authorization:'Bearer '+CONFIG.SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify({pass:pw.value})});
+ if(!r.ok)return st.textContent='Error o clave incorrecta';R=await r.json();draw()}
+async function loadFiles(fs){R=[];for(const f of fs){const j=JSON.parse(await f.text());(Array.isArray(j)?j:[j]).forEach(x=>R.push(x))}draw()}
+const roles=['Diseñador/a','Vendedor/a','Cliente'];
+function calc(){return CAT.map(c=>{const o={id:c.id,name:c.name,mat:c.mat,plcc:c.plcc,img:c.imgs[0],n:0,sum:0,love:0,t3:0};roles.forEach(r=>{o[r+'n']=0;o[r+'s']=0});
+ R.forEach(x=>{const v=x.answers&&x.answers[c.id];if(v!==undefined){o.n++;o.sum+=v;if(v==3)o.love++;if(roles.includes(x.role)){o[x.role+'n']++;o[x.role+'s']+=v}}
+  const p=(x.top3||[]).indexOf(c.id);if(p>=0)o.t3+=3-p});
+ o.avg=o.n?o.sum/o.n:null;return o}).sort((a,b)=>(b.t3-a.t3)||((b.avg||-1)-(a.avg||-1)))}
+function draw(){const rs=calc();st.textContent=R.length+' respuestas';const f=x=>x==null?'':x.toFixed(2);
+ out.innerHTML='<table><tr><th>#</th><th></th><th>Estilo</th><th>Material</th><th>Votos</th><th>Promedio (0-3)</th><th>% Me encanta</th><th>Puntos Top3</th>'+roles.map(r=>`<th>Prom. ${r}</th>`).join('')+'</tr>'+
+ rs.map((o,i)=>`<tr><td>${i+1}</td><td><img src="img/${o.img}"></td><td class="l"><b>${o.name}</b><br>${o.id} ${o.plcc}</td><td>${o.mat}</td><td>${o.n}</td><td>${f(o.avg)}<span class="b" style="width:${(o.avg||0)/3*100}%"></span></td><td>${o.n?Math.round(o.love/o.n*100)+'%':''}</td><td>${o.t3}</td>`+roles.map(r=>`<td>${o[r+'n']?f(o[r+'s']/o[r+'n']):''}</td>`).join('')+'</tr>').join('')+'</table>'}
+function dl(t,n){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+t],{type:'text/csv'}));a.download=n;a.click()}
+function csv(m){if(m=='long'){let t='respondent,rol,tienda,style_id,estilo,puntaje,top3_rank\n';R.forEach((x,i)=>CAT.forEach(c=>{const v=x.answers&&x.answers[c.id];if(v!==undefined)t+=[i+1,x.role,x.store||'',c.id,c.name,v,(x.top3||[]).indexOf(c.id)+1||''].map(s=>'"'+String(s).replace(/"/g,'""')+'"').join(',')+'\n'}));dl(t,'votos_largo.csv')}
+ else{let t='rank,id,estilo,material,votos,promedio,pct_encanta,puntos_top3\n';calc().forEach((o,i)=>t+=[i+1,o.id,o.name,o.mat,o.n,f2(o.avg),o.n?Math.round(o.love/o.n*100):'',o.t3].join(',')+'\n');dl(t,'resumen.csv')}}
+const f2=x=>x==null?'':x.toFixed(2);
+</script></body></html>
