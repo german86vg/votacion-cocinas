@@ -1,2 +1,2 @@
-// Pegar aquí los datos de Supabase (Project Settings > API). Si se dejan vacíos, la encuesta funciona en modo local (descarga de archivo).
-window.CONFIG = { SUPABASE_URL: "", SUPABASE_ANON_KEY: "", TITULO: "Home Vega × OPPEIN · Votación de estilos de cocina" };
+window.CONFIG = { SUPABASE_URL: "https://eyxacazssxephbfrtiog.supabase.co", SUPABASE_ANON_KEY: "sb_publishable_vdoXIgju2iWUu81ni8coyQ_Y3YTExiN", TITULO: "Home Vega × OPPEIN · Votación de estilos de cocina" };
+(function(){var f=window.fetch;window.fetch=function(u,o){if(o&&o.headers&&String(o.headers.Authorization||"").indexOf("Bearer sb_")===0){var h=Object.assign({},o.headers);delete h.Authorization;o=Object.assign({},o,{headers:h});}return f(u,o);};})();
