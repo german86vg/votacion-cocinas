@@ -46,7 +46,7 @@ function render(){const a=$('#app');
  if(S.step=='cards')return cards(a);
  if(S.step=='top')return topScreen(a);
  return done(a)}
-function profile(a){a.innerHTML=`<div class="pf"><img class="logo" src="logo_homevega.png"><h1>Votación de estilos de cocina</h1><p>Home Vega está definiendo los ambientes de cocina de su showroom OPPEIN. Verás <b>${CAT.length} cocinas</b> (una por pantalla, en grande). Marca cuánto te gusta cada una. Toma unos 10–15 minutos. Para que tu voto cuente, debes calificar todas. No hay respuestas correctas: queremos tu criterio.</p>
+function profile(a){a.innerHTML=`<div class="pf"><img class="logo" src="logo_homevega.png"><h1>Votación de estilos de cocina</h1><p>Home Vega está definiendo los ambientes de cocina de su showroom OPPEIN. Verás <b>${CAT.length} cocinas</b> (una por pantalla, en grande). Marca cuánto te gusta cada una. Toma unos 5 minutos. Para que tu voto cuente, debes calificar todas. No hay respuestas correctas: queremos tu criterio.</p>
  <label>Nombre</label><input id="n"><label>Tu rol</label><select id="r"><option value="">Selecciona…</option><option>Diseñador/a</option><option>Vendedor/a</option><option>Cliente</option><option>Arquitecto/Constructor</option><option>Otro</option></select>
  <label>Tienda / ciudad (opcional)</label><input id="t">
  <button class="btn" onclick="start()">Comenzar</button></div>`}
